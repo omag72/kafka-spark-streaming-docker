@@ -1,46 +1,57 @@
+#from kafka import KafkaProducer
+
+
+#TOPIC_NAME = 'mydata'
+#KAFKA_SERVER = 'localhost:9092'
+
+#producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
+#producer.send('mydata',b'using python to execute msgs')
+#producer.send('mydata',b'This is Kafka-Python, welcome')
+#producer.flush()
+
+#!/usr/bin/python3
+
 from kafka import KafkaProducer
 import json
-import time
 import random
+import time
 
-# Kafka broker address
-KAFKA_BROKER = "localhost:9092"
+# Kafka broker details
+bootstrap_servers = 'localhost:9092'
+topic = 'test_topic'
 
-# Kafka topic to produce to
-TOPIC = "test-topic"
+# Create Kafka producer
+producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
+                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
-def generate_data():
-    data = {
-        "timestamp": int(time.time()),
-        "value": round(random.uniform(0, 100), 2),
-        "status": random.choice(["normal", "warning", "error"]),
-    }
-    return json.dumps(data)
+# Simulate IoT device data
+def simulate_iot_device(device_id):
+    while True:
+        # Generate random sensor data
+        temperature = round(random.uniform(20.0, 30.0), 2)
+        humidity = round(random.uniform(40.0, 60.0), 2)
+        pressure = round(random.uniform(900.0, 1100.0), 2)
 
-if __name__ == "__main__":
-    # Create a Kafka producer instance
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda v: json.dumps(v).encode("utf-8")
-    )
+        # Create JSON payload
+        payload = {
+            'device_id': device_id,
+            'timestamp': int(time.time()),
+            'temperature': temperature,
+            'humidity': humidity,
+            'pressure': pressure
+        }
 
-    try:
-        while True:
-            # Generate data
-            message = generate_data()
+        # Send data to Kafka topic
+        producer.send(topic, value=payload)
+        print(f"Sent data: {payload}")
 
-            # Produce the message to the specified topic
-            producer.send(TOPIC, value=message)
+        # Sleep for a random interval (e.g., 1-5 seconds)
+        time.sleep(random.uniform(1, 5))
 
-            print("Message sent:", message)
-            time.sleep(2)  # Simulate generating data every 2 seconds
-
-    except KeyboardInterrupt:
-        pass
-
-    # Close the producer
-    producer.close()
-
+# Start simulating IoT devices
+device_ids = ['device1', 'device2', 'device3']  # Add more device IDs if needed
+for device_id in device_ids:
+    simulate_iot_device(device_id)
 
 
     
