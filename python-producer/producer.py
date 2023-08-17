@@ -18,7 +18,7 @@ import time
 
 # Kafka broker details
 bootstrap_servers = 'localhost:9092'
-topic = 'test_topic'
+topic = 'test-topic'
 
 # Create Kafka producer
 producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
